@@ -1,0 +1,30 @@
+#!/usr/bin/env bash
+
+set -e
+set -o pipefail
+
+install() {
+  local install_type=$1
+  local version=$2
+  local install_path=$3
+  local platform="$(uname | tr '[:upper:]' '[:lower:]')_amd64"
+  local bin_install_path="$install_path/bin"
+  local binary_path="$bin_install_path/aws-iam-authenticator"
+  local download_url=$(get_download_url $version $platform)
+
+  mkdir -p "${bin_install_path}"
+
+  echo "Downloading aws-iam-authenticator from ${download_url} to ${binary_path}"
+  curl -Lo $binary_path $download_url
+
+  chmod +x ${binary_path}
+}
+
+get_download_url() {
+  local version="$1"
+  local platform="$2"
+
+  echo "https://github.com/kubernetes/aws-iam-authenticator/releases/download/v${version}/aws-iam-authenticator_${version}_${platform}"
+}
+
+install $ASDF_INSTALL_TYPE $ASDF_INSTALL_VERSION $ASDF_INSTALL_PATH
