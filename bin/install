@@ -1,30 +1,42 @@
 #!/usr/bin/env bash
 
-set -e
-set -o pipefail
+set -euo pipefail
+
+[ -z "${ASDF_INSTALL_TYPE+x}" ] && echo "ASDF_INSTALL_TYPE is required" && exit 1
+[ -z "${ASDF_INSTALL_VERSION+x}" ] && echo "ASDF_INSTALL_VERSION is required" && exit 1
+[ -z "${ASDF_INSTALL_PATH+x}" ] && echo "ASDF_INSTALL_PATH is required" && exit 1
 
 install() {
   local install_type=$1
+  [ "$install_type" != "version" ] && echo "install type, $install_type, is not supported" && exit 1
+
   local version=$2
   local install_path=$3
-  local platform="$(uname | tr '[:upper:]' '[:lower:]')_amd64"
-  local bin_install_path="$install_path/bin"
-  local binary_path="$bin_install_path/aws-iam-authenticator"
-  local download_url=$(get_download_url $version $platform)
 
+  local bin_install_path="$install_path/bin"
+  local bin_path="${bin_install_path}/aws-iam-authenticator"
+
+  local platform
+  [ "Linux" = "$(uname)" ] && platform="linux" || platform="darwin"
+  local arch
+  [ "x86_64" = "$(uname -m)" ] && arch="amd64" || arch="386"
+
+  local download_url
+  download_url= "https://github.com/kubernetes/aws-iam-authenticator/releases/download/v${version}/aws-iam-authenticator_${version}_${platform}_${arch}"
+  checksum_url="https://github.com/kubernetes-sigs/aws-iam-authenticator/releases/download/v${version}/authenticator_${version}_checksums.txt"
   mkdir -p "${bin_install_path}"
 
-  echo "Downloading aws-iam-authenticator from ${download_url} to ${binary_path}"
-  curl -Lo $binary_path $download_url
+  echo "Downloading aws-iam-authenticator from ${download_url}"
 
-  chmod +x ${binary_path}
+  STATUSCODE=$(curl -q --write-out "%{http_code}" -Lo "$bin_path" -C - "$download_url")
+
+  if test "${STATUSCODE}" -ne 200; then
+    echo "Binary for version '${version}' was not found or could not be retrieved."
+    exit 1
+  fi
+
+  chmod +x "$bin_path"
 }
 
-get_download_url() {
-  local version="$1"
-  local platform="$2"
+install "$ASDF_INSTALL_TYPE" "$ASDF_INSTALL_VERSION" "$ASDF_INSTALL_PATH"
 
-  echo "https://github.com/kubernetes/aws-iam-authenticator/releases/download/v${version}/aws-iam-authenticator_${version}_${platform}"
-}
-
-install $ASDF_INSTALL_TYPE $ASDF_INSTALL_VERSION $ASDF_INSTALL_PATH
