@@ -22,8 +22,8 @@ install() {
   [ "x86_64" = "$(uname -m)" ] && arch="amd64" || arch="386"
 
   local download_url
-  download_url= "https://github.com/kubernetes/aws-iam-authenticator/releases/download/v${version}/aws-iam-authenticator_${version}_${platform}_${arch}"
-  checksum_url="https://github.com/kubernetes-sigs/aws-iam-authenticator/releases/download/v${version}/authenticator_${version}_checksums.txt"
+  download_url="https://github.com/kubernetes/aws-iam-authenticator/releases/download/v${version}/aws-iam-authenticator_${version}_${platform}_${arch}"
+  #checksum_url="https://github.com/kubernetes-sigs/aws-iam-authenticator/releases/download/v${version}/authenticator_${version}_checksums.txt"
   mkdir -p "${bin_install_path}"
 
   echo "Downloading aws-iam-authenticator from ${download_url}"
