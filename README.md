@@ -1,6 +1,6 @@
 # asdf-aws-iam-authenticator
 
-[aws-iam-authenticator](https://github.com/kubernetes/aws-iam-authenticator) plugin for [asdf](https://github.com/asdf-vm/asdf) version manager
+[aws-iam-authenticator](https://github.com/kubernetes-sigs/aws-iam-authenticator) plugin for [asdf](https://github.com/asdf-vm/asdf) version manager
 
 ## Install
 
